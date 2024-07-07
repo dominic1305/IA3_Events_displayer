@@ -14,7 +14,7 @@ export default class Event {
 	static GetEvent(info) {
 		const obj = {};
 
-		for (const [ key, value ] of Object.entries(info)) {//TODO: add geolocation
+		for (const [ key, value ] of Object.entries(info)) {
 			switch (key) {
 				case "age":
 				case "cost":
@@ -35,7 +35,7 @@ export default class Event {
 					break;
 				}
 				case "requirements": {
-					obj[key] = `Requirements: ${(value == null) ? "none" : value}`;
+					obj[key] = `Requirements: ${(value == null) ? "None" : value}`;
 					break;
 				}
 				case "web_link": {
@@ -74,7 +74,7 @@ export default class Event {
 		return (4294967296 * (2097151 & h2) + (h1 >> 0)).toString(32);
 	}
 
-	/**@returns {Generator<{key: string, value: string | Date | string[] | HTMLImageElement>}*/
+	/**@returns {Generator<{key: string, value: string | Date | string[] | HTMLImageElement}>}*/
 	*#GetData_Precedence() {
 		const arr = new Array(Object.keys(this.#info).length);
 
@@ -104,19 +104,23 @@ export default class Event {
 
 	/**@param {string[]?} ignoreList*/
 	GenerateCard(ignoreList) {
-		let card = document.createElement('div');
-		card.className = 'card';
+		let card = document.createElement("div");
+		card.className = "card";
 
 		for (const { key, value } of this.#GetData_Precedence()) {
 			if (ignoreList != null && ignoreList.includes(key)) continue;
 
 			switch (key) {
-				case "location":
 				case "description": //TODO: toggle showing full description
 				case "requirements":
 				case "subject": {
 					if (typeof value != "string") throw new GenerationException(`invalid type for ${key}`);
 					card.innerHTML += `<p id="${key}">${value}</p>`;
+					break;
+				}
+				case "location": {
+					if (typeof value != "string") throw new GenerationException(`invalid type for ${key}`);
+					card.innerHTML += `<div id="${key}" class="location-container"><div>${value}</div><div class="map-btn" data-address="${value}">View on Map</div></div>`;
 					break;
 				}
 				case "cost": {
@@ -127,7 +131,7 @@ export default class Event {
 				case "age": continue; //is handled by "cost"
 				case "web_link": {
 					if (typeof value != "string") throw new GenerationException(`invalid type for ${key}`);
-					card.innerHTML += `<a class="card-visit-btn" href="${value}">Visit Page</a>`;
+					card.innerHTML += `<a class="card-visit-btn" href="${value}" draggable="false">Visit Page</a>`;
 					break;
 				}
 				case "hash": {
@@ -149,10 +153,13 @@ export default class Event {
 					let progress = Math.floor(((new Date() - start) / (end - start)) * 100);
 					progress = (progress < 0) ? 0 : (progress > 100) ? 100 : progress;
 
+					const titleMSG = (progress <= 0) ? "This event has not started yet" : (progress >= 100) ? "This event is over" : `This event is ${progress}% completed`;
+
 					ss +=	`<svg viewBox="0 0 250 250" class="date-progress" style="--progress: ${progress}">
 								<circle style="cx: var(--half-size); cy: var(--half-size); r: var(--radius);" class="bg"></circle>
 								<circle style="cx: var(--half-size); cy: var(--half-size); r: var(--radius);" class="fg"></circle>
 								<text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" style="font-size: ${(progress == 100) ? "80" : "90"}px;">${progress}%</text>
+								<title>${titleMSG}</title>
 							</svg>`;
 
 					card.innerHTML += ss + "</div>";
@@ -160,11 +167,7 @@ export default class Event {
 					break;
 				}
 				case "end_datetime": continue; //is handled by "start_datetime"
-				case "event_type": {
-					if (!Array.isArray(value)) throw new GenerationException(`invalid type for ${key}`);
-					card.innerHTML += `<p id="${key}">${value.join(", ")}</p>`;
-					break;
-				}
+				case "event_type": continue; //not displayed to user, used for filtering
 				case "eventimage": {
 					if (typeof value != "string") throw new GenerationException(`invalid type for ${key}`);
 					card.innerHTML += `<img class="card-img" src="${value}" draggable="false">`;
@@ -184,10 +187,10 @@ export default class Event {
 
 	/**@param {Date} date @param {boolean?} _24H_time*/
 	#FormatDate(date, _24H_time = false) {
-		const _date = `${date.getDate()}/${date.getMonth()}/${String(date.getFullYear()).substring(2, 4)} `;
+		const _date = `${date.getDate()}/${date.getMonth()+1}/${String(date.getFullYear()).substring(2, 4)} `;
 
-		let hours = date.getHours();
-		let minutes = date.getMinutes();
+		const hours = date.getHours();
+		const minutes = date.getMinutes();
 
 		if (_24H_time) return _date + String(hours).padStart(2, '0') + ':' + String(minutes).padEnd(2, '0');
 

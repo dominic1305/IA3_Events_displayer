@@ -27,6 +27,43 @@ html, body {
 		& p {
 			margin: 5px 0;
 		}
+		& p#cost {
+			text-transform: capitalize;
+		}
+		& a.card-visit-btn {
+			white-space: nowrap;
+			cursor: pointer;
+			user-select: none;
+			text-decoration: none;
+			color: black;
+			background-color: #cccccc;
+			padding: 2px 5px;
+			border-radius: 5px;
+			transition: 50ms;
+			&:active {
+				transform: scale(0.9);
+			}
+		}
+		& div.location-container {
+			display: flex;
+			flex-direction: row;
+			flex-wrap: nowrap;
+			align-items: center;
+			gap: 10px;
+			padding: 0 10px;
+			& div.map-btn {
+				white-space: nowrap;
+				cursor: pointer;
+				user-select: none;
+				background-color: #cccccc;
+				padding: 2px 5px;
+				border-radius: 5px;
+				transition: 50ms;
+				&:active {
+					transform: scale(0.9);
+				}
+			}
+		}
 		& p#description {
 			overflow: hidden; /* Hide the overflow text */
 			display: -webkit-box;
@@ -85,5 +122,31 @@ html, body {
 	& text {
 		font-size: 100px;
 		user-select: none;
+	}
+}
+
+.map-container-modal {
+	width: 80vw;
+	height: 80vh;
+	& div.close-btn {
+		font-size: 30px;
+		cursor: pointer;
+		user-select: none;
+		transform: translateY(-50%);
+		position: absolute;
+		right: 1%;
+	}
+	& iframe {
+		user-select: none;
+		width: 90%;
+		height: 90%;
+		transform: translate(-50%, -50%);
+		position: absolute;
+		left: 50%;
+		top: 50%;
+	}
+	& div.disclaimer {
+		position: absolute;
+		bottom: 1%;
 	}
 }
