@@ -64,7 +64,12 @@ html, body {
 				}
 			}
 		}
+		& p#subject {
+			text-transform: capitalize;
+		}
 		& p#description {
+			cursor: pointer;
+			user-select: none;
 			overflow: hidden; /* Hide the overflow text */
 			display: -webkit-box;
 			line-clamp: 3;

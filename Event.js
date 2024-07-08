@@ -111,11 +111,15 @@ export default class Event {
 			if (ignoreList != null && ignoreList.includes(key)) continue;
 
 			switch (key) {
-				case "description": //TODO: toggle showing full description
 				case "requirements":
 				case "subject": {
 					if (typeof value != "string") throw new GenerationException(`invalid type for ${key}`);
 					card.innerHTML += `<p id="${key}">${value}</p>`;
+					break;
+				}
+				case "description": {
+					if (typeof value != "string") throw new GenerationException(`invalid type for ${key}`);
+					card.innerHTML += `<p id="${key}" data-hide="1">${value}</p>`;
 					break;
 				}
 				case "location": {

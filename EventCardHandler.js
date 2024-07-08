@@ -44,6 +44,12 @@ export default class EventCardHandler {
 				element.querySelector(".map-btn").addEventListener("click", (e) => {
 					this.#createMapModal(e.target.dataset["address"]);
 				});
+
+				element.querySelector("#description").addEventListener('click', (e) => {
+					const bool = !Boolean(Number(e.target.dataset["hide"]));
+					e.target.style.display = (bool) ? "-webkit-box" : "flex";
+					e.target.dataset["hide"] = Number(bool);
+				});
 			} catch (err) {
 				if (err instanceof GenerationException) {//skip if failed to generate event card
 					console.warn(`${err.name} ${err.message}`);
