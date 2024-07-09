@@ -7,7 +7,25 @@
 	<title>Events Displayer</title>
 </head>
 <body>
+	<div class="sign-up-container" data-open="0">
+		<div class="close">&#10005;</div>
+		<div class="title">Notifications</div>
+		<input type="email" id="email" placeholder="email@domain.com">
+		<input type="text" id="phone-num" placeholder="#### ### ###">
+		<input type="text" id="location" placeholder="City">
+		<div class="submit">Submit</div>
+	</div>
+	<nav>
+		<div class="title">
+			<img class="logo" src="https://www.brisbane.qld.gov.au/themes/bcc_theme/src/components/logo/images/logo.png" alt="BCC logo" draggable="false">
+			<p id="title-txt">Brisbane City Events</p>
+		</div>
+		<div class="nav-btns">
+			<div class="create-account-btn">Sign Up for Notifications</div>
+		</div>
+	</nav>
 	<div class="wrapper">
+		<h1 class="location-display"></h1>
 		<div class="card-container"></div>
 	</div>
 	<script defer type="module" src="./main.js"></script>

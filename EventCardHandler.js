@@ -30,7 +30,7 @@ export default class EventCardHandler {
 		return new EventCardHandler(buffer, cardLocation);
 	}
 
-	/**@returns {Promise<Object<string, string?>>}*/
+	/**@returns {Promise<Object<string, string?>[]>}*/
 	static async #GetEvents(API) {
 		return await fetch(API).then(rsp => rsp.json()).then(bin => bin["results"]);
 	}
@@ -45,7 +45,7 @@ export default class EventCardHandler {
 					this.#createMapModal(e.target.dataset["address"]);
 				});
 
-				element.querySelector("#description").addEventListener('click', (e) => {
+				element.querySelector("#description").addEventListener("click", (e) => {
 					const bool = !Boolean(Number(e.target.dataset["hide"]));
 					e.target.style.display = (bool) ? "-webkit-box" : "flex";
 					e.target.dataset["hide"] = Number(bool);
