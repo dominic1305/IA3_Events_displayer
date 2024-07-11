@@ -27,6 +27,7 @@ export default class Event {
 				}
 				case "venueaddress": {
 					if (value == null) throw new ParseException("Event must contain a venue address");
+					obj[key] = value;
 					break;
 				}
 				case "meetingpoint": {
@@ -80,19 +81,20 @@ export default class Event {
 
 		for (const key of Object.keys(this.#info)) {
 			switch (key) {
-				case "subject":			{ arr[0x1] = key; break; }
-				case "web_link":		{ arr[0xb] = key; break; }
-				case "hash":			{ arr[0xc] = key; break; }
-				case "location":		{ arr[0x4] = key; break; }
-				case "start_datetime":	{ arr[0x5] = key; break; }
-				case "end_datetime":	{ arr[0x6] = key; break; }
-				case "description":		{ arr[0x9] = key; break; }
-				case "event_type":		{ arr[0xa] = key; break; }
-				case "cost":			{ arr[0x2] = key; break; }
 				case "eventimage":		{ arr[0x0] = key; break; }
+				case "subject":			{ arr[0x1] = key; break; }
+				case "cost":			{ arr[0x2] = key; break; }
 				case "age":				{ arr[0x3] = key; break; }
-				case "requirements":	{ arr[0x8] = key; break; }
-				case "meetingpoint":	{ arr[0x7] = key; break; }
+				case "location":		{ arr[0x4] = key; break; }
+				case "venueaddress" :	{ arr[0x5] = key; break; }
+				case "start_datetime":	{ arr[0x6] = key; break; }
+				case "end_datetime":	{ arr[0x7] = key; break; }
+				case "meetingpoint":	{ arr[0x8] = key; break; }
+				case "requirements":	{ arr[0x9] = key; break; }
+				case "description":		{ arr[0xa] = key; break; }
+				case "event_type":		{ arr[0xb] = key; break; }
+				case "web_link":		{ arr[0xc] = key; break; }
+				case "hash":			{ arr[0xd] = key; break; }
 				default:				throw new Error(`[INVALID KEY] (${key}) is not a valid key of Event`);
 			}
 		}
@@ -124,9 +126,10 @@ export default class Event {
 				}
 				case "location": {
 					if (typeof value != "string") throw new GenerationException(`invalid type for ${key}`);
-					card.innerHTML += `<div id="${key}" class="location-container"><div>${value}</div><div class="map-btn" data-address="${value}">View on Map</div></div>`;
+					card.innerHTML += `<div id="${key}" class="location-container"><div>${value}</div><div class="map-btn" data-address="${this.#info["venueaddress"]}">View on Map</div></div>`;
 					break;
 				}
+				case "venueaddress": continue;
 				case "cost": {
 					if (typeof value != "string") throw new GenerationException(`invalid type for ${key}`);
 					card.innerHTML += `<div class="costKey"><p id="${key}">${value}</p><p id="age">${this.#info["age"]}</p></div>`;
