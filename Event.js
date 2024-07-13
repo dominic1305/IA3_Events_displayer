@@ -129,7 +129,7 @@ export default class Event {
 					card.innerHTML += `<div id="${key}" class="location-container"><div>${value}</div><div class="map-btn" data-address="${this.#info["venueaddress"]}">View on Map</div></div>`;
 					break;
 				}
-				case "venueaddress": continue;
+				case "venueaddress": continue; //is handled by "location"
 				case "cost": {
 					if (typeof value != "string") throw new GenerationException(`invalid type for ${key}`);
 					card.innerHTML += `<div class="costKey"><p id="${key}">${value}</p><p id="age">${this.#info["age"]}</p></div>`;

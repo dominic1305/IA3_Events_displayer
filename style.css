@@ -285,3 +285,29 @@ nav {
 .location-display {
 	text-transform: capitalize;
 }
+
+.card-loader-container {
+	width: max-content;
+	transform: translateX(-50%);
+	position: relative;
+	left: 50%;
+	overflow: hidden;
+	display: none;
+	flex-direction: column;
+	justify-content: center;
+	& p {
+		margin: 0;
+	}
+	& img {
+		cursor: pointer;
+		height: 100px;
+		transition: 100ms;
+		transform: rotate(90deg);
+		&:hover {
+			transform: rotate(100deg);
+		}
+		&:active {
+			transform: rotate(450deg);
+		}
+	}
+}

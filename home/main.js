@@ -1,18 +1,21 @@
 import EventCardHandler from "./../EventCardHandler.js";
 import Notification from "./../Notification.js";
 
+/**@type {EventCardHandler?}*/ let cardHandler;
+
 window.onload = async () => {
 	const ip = await fetch("https://api.ipify.org/?format=json").then(rsp => rsp.json()).then(bin => bin["ip"]);
 	fetch(`http://api.ipbase.com/v1/json/${ip}`).then(rsp => rsp.json()).then((bin) => {
 		document.querySelector(".wrapper > .location-display").innerHTML = `Events around ${bin["city"]}`;
 	}).catch(() => {
 		console.warn("failed to get location");
-		document.querySelector(".wrapper > .location-display").innerHTML = "Brisbane"; //hard-coded, yay!
+		document.querySelector(".wrapper > .location-display").innerHTML = "Events around Brisbane"; //hard-coded, yay!
 	});
 
-	const handler = await EventCardHandler.GetHandler(100, document.querySelector(".card-container"));
-	console.log(handler);
-	handler.GenerateCards();
+	cardHandler = await EventCardHandler.GetHandler(document.querySelector(".card-container"));
+	console.log(cardHandler);
+	cardHandler.GenerateCards(10);
+	document.querySelector(".card-loader-container").style.display = "flex";
 }
 
 document.querySelector(".create-account-btn").addEventListener("click", async () => {
@@ -69,4 +72,11 @@ document.querySelector(".sign-up-container > div.submit").addEventListener("clic
 		document.querySelector(".create-account-btn").click();
 		Notification.notify("Account Created Successfully");
 	}, Math.random() * (400 - 200) + 200);
+});
+
+document.querySelector("#card-loader").addEventListener("click", () => {
+	if (cardHandler == null) throw new Error("cardHandler cannot be null");
+
+	cardHandler.GenerateCards(document.querySelectorAll(".card-container > div.card").length + 10);
+	if (document.querySelectorAll(".card-container > div.card").length >= cardHandler.Length) document.querySelector(".card-loader-container").style.display = "none";
 });

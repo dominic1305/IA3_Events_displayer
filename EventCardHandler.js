@@ -1,9 +1,13 @@
 import Event, { ParseException, GenerationException } from "./Event.js";
 
 export default class EventCardHandler {
-	static #eventAPI = "https://data.brisbane.qld.gov.au/api/explore/v2.1/catalog/datasets/brisbane-city-council-events/records";
+	static #eventAPI = "https://data.brisbane.qld.gov.au/api/explore/v2.1/catalog/datasets/brisbane-city-council-events/records?limit=100";
 	#events;
 	#cardLocation;
+
+	get Length() {
+		return this.#events.length;
+	}
 
 	/**@private @param {Event[]} events @param {HTMLDivElement} cardLocation*/
 	constructor(events, cardLocation) {
@@ -11,11 +15,11 @@ export default class EventCardHandler {
 		this.#cardLocation = cardLocation;
 	}
 
-	/**@param {number} eventCount @param {HTMLDivElement} cardLocation*/
-	static async GetHandler(eventCount, cardLocation) {
+	/**@param {HTMLDivElement} cardLocation*/
+	static async GetHandler(cardLocation) {
 		const buffer = [];
 
-		for (const info of await this.#GetEvents(`${this.#eventAPI}?limit=${eventCount}`)) {
+		for (const info of await this.#GetEvents(this.#eventAPI)) {
 			try {
 				buffer.push(Event.GetEvent(info));
 			} catch (err) {
@@ -35,11 +39,17 @@ export default class EventCardHandler {
 		return await fetch(API).then(rsp => rsp.json()).then(bin => bin["results"]);
 	}
 
-	GenerateCards() {
-		for (const event of this.#events) {
+	/**@param {number} targCount*/
+	GenerateCards(targCount) {
+		let cardCount = document.querySelectorAll(".card-container > div.card").length;
+
+		for (let i = cardCount; i < this.#events.length; i++) {
+			if (cardCount == targCount) break; //generated the required amount of cards
+
 			try {
-				const element = event.GenerateCard();
+				const element = this.#events[i].GenerateCard();
 				this.#cardLocation.appendChild(element);
+				cardCount++;
 
 				element.querySelector(".map-btn").addEventListener("click", (e) => {
 					this.#createMapModal(e.target.dataset["address"]);
