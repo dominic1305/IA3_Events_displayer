@@ -6,13 +6,13 @@ import Notification from "./../Notification.js";
 window.onload = async () => {
 	const ip = await fetch("https://api.ipify.org/?format=json").then(rsp => rsp.json()).then(bin => bin["ip"]);
 	fetch(`http://api.ipbase.com/v1/json/${ip}`).then(rsp => rsp.json()).then((bin) => {
-		document.querySelector(".wrapper > .location-display").innerHTML = `Events around ${bin["city"]}`;
+		document.querySelector(".wrapper .location-display").innerHTML = `Events around ${bin["city"]}`;
 	}).catch(() => {
 		console.warn("failed to get location");
-		document.querySelector(".wrapper > .location-display").innerHTML = "Events around Brisbane"; //hard-coded, yay!
+		document.querySelector(".wrapper .location-display").innerHTML = "Events around Brisbane"; //hard-coded, yay!
 	});
 
-	cardHandler = await EventCardHandler.GetHandler(document.querySelector(".card-container"));
+	cardHandler = await EventCardHandler.GetHandler(document.querySelector(".card-container"), document.querySelector(".filter-controls-btn"));
 	console.log(cardHandler);
 	cardHandler.GenerateCards(10);
 	document.querySelector(".card-loader-container").style.display = "flex";
@@ -30,7 +30,7 @@ document.querySelector(".create-account-btn").addEventListener("click", async ()
 
 	if (bool) {//only call APIs if opening panel
 		const ip = await fetch("https://api.ipify.org/?format=json").then(rsp => rsp.json()).then(bin => bin["ip"]);
-		document.querySelector(".sign-up-container > input#location").value = await fetch(`http://api.ipbase.com/v1/json/${ip}`).then(rsp => rsp.json()).then(bin => bin["city"]).catch(() => {
+		document.querySelector(".sign-up-container input#location").value = await fetch(`http://api.ipbase.com/v1/json/${ip}`).then(rsp => rsp.json()).then(bin => bin["city"]).catch(() => {
 			console.warn("failed to get location");
 			return "Brisbane"; //hard-coded, yay!
 		});
