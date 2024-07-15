@@ -361,6 +361,20 @@ nav {
 			cursor: pointer;
 			transform: translateY(-20%);
 		}
+		& div#toggle {
+			padding: 3px 5px 0 5px;
+			background-color: #dddddd;
+			border-radius: 10px;
+			user-select: none;
+			cursor: pointer;
+			transition: 100ms;
+			&:hover {
+				transform: scale(1.05);
+			}
+			&:active {
+				transform: scale(0.9);
+			}
+		}
 	}
 	& div.submit {
 		user-select: none;
@@ -373,6 +387,8 @@ nav {
 		margin-bottom: 5px;
 		user-select: none;
 		display: flex;
-		flex-direction: column;
+		flex-direction: row;
+		justify-content: space-between;
+		gap: 10px;
 	}
 }

@@ -2,6 +2,7 @@ import EventCardHandler from "./../EventCardHandler.js";
 import Notification from "./../Notification.js";
 
 /**@type {EventCardHandler?}*/ let cardHandler;
+/**@type {MutationObserver?}*/ let cardObserver;
 
 window.onload = async () => {
 	const ip = await fetch("https://api.ipify.org/?format=json").then(rsp => rsp.json()).then(bin => bin["ip"]);
@@ -11,6 +12,13 @@ window.onload = async () => {
 		console.warn("failed to get location");
 		document.querySelector(".wrapper .location-display").innerHTML = "Events around Brisbane"; //hard-coded, yay!
 	});
+
+	cardObserver = new MutationObserver(() => {
+		if (cardHandler == null) throw new Error("cardHandler cannot be null");
+
+		document.querySelector(".card-loader-container").style.display = (document.querySelectorAll(".card-container > div.card").length >= cardHandler.FilteredLength) ? "none" : "flex";
+	});
+	cardObserver.observe(document.querySelector('.card-container'), { attributes: true, characterData: true, childList: true, });
 
 	cardHandler = await EventCardHandler.GetHandler(document.querySelector(".card-container"), document.querySelector(".filter-controls-btn"));
 	console.log(cardHandler);
@@ -78,5 +86,4 @@ document.querySelector("#card-loader").addEventListener("click", () => {
 	if (cardHandler == null) throw new Error("cardHandler cannot be null");
 
 	cardHandler.GenerateCards(document.querySelectorAll(".card-container > div.card").length + 10);
-	if (document.querySelectorAll(".card-container > div.card").length >= cardHandler.Length) document.querySelector(".card-loader-container").style.display = "none";
 });

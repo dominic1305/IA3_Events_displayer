@@ -11,6 +11,14 @@ export default class EventCardHandler {
 		return this.#events.length;
 	}
 
+	get FilteredLength() {
+		let count = 0;
+		for (const event of this.#events) {
+			if (event.Info["event_type"].some(bin => this.#filter[bin])) count++;
+		}
+		return count;
+	}
+
 	/**@private @param {Event[]} events @param {HTMLDivElement} cardLocation @param {HTMLDivElement} filterBtn @param {Object<string, boolean>} filter */
 	constructor(events, cardLocation, filterBtn, filter) {
 		this.#events = events;
@@ -68,6 +76,38 @@ export default class EventCardHandler {
 				this.#cardLocation.innerHTML = "";
 				this.GenerateCards(10);
 			});
+
+			element.querySelectorAll(".row input").forEach((bin) => {
+				bin.addEventListener("click", () => {
+					const method = Number(element.querySelector("#toggle").dataset["method"]);
+					const inputs = Array.from(element.querySelectorAll(".row input"));
+					if (inputs.every(bin => bin.checked) && method == -1 || inputs.every(bin => !bin.checked) && method == 0) {
+						element.querySelector("#toggle").dataset["method"] = ~method;
+						element.querySelector("#toggle").innerHTML = (~method) ? "Select All" : "Deselect All";
+					}
+				});
+			});
+
+			element.querySelector("#toggle").addEventListener("click", () => {
+				const method = Number(element.querySelector("#toggle").dataset["method"]);
+				switch (method) {
+					case 0: {//deselect all
+						for (const input of element.querySelectorAll(".row input")) {
+							input.checked = false;
+						}
+						break;
+					}
+					case -1: {//select all
+						for (const input of element.querySelectorAll(".row input")) {
+							input.checked = true;
+						}
+						break;
+					}
+					default: throw new Error(`invalid method: ${method}`);
+				}
+				element.querySelector("#toggle").dataset["method"] = ~method;
+				element.querySelector("#toggle").innerHTML = (~method) ? "Select All" : "Deselect All";
+			});
 		});
 	}
 
@@ -78,6 +118,7 @@ export default class EventCardHandler {
 		for (let i = cardCount; i < this.#events.length; i++) {
 			if (cardCount == targCount) break; //generated the required amount of cards
 			if (!this.#events[i].Info["event_type"].some(bin => this.#filter[bin])) continue; //this event is not compliant with the filter, skip
+			if (Array.from(document.querySelectorAll(".card-container > div.card")).some(bin => bin.dataset["idx"] == i)) continue; //card index already exists, skip
 
 			try {
 				const element = this.#cardLocation.appendChild(this.#events[i].GenerateCard());
@@ -125,12 +166,13 @@ export default class EventCardHandler {
 		const parent = document.createElement("div");
 		parent.className = "filter-controller-container";
 
-		parent.innerHTML += "<div class=\"title\"><p class=\"title-txt\">Filter</p><p class=\"exit\">&#10005;</p></div>"; //title
+		parent.innerHTML += "<div class=\"title\"><p class=\"title-txt\">Filter</p><div id=\"toggle\" data-method=\"0\">Deselect All</div><p class=\"exit\">&#10005;</p></div>"; //title
 
 		for (const [ key, checked ] of Object.entries(this.#filter)) {
 			let row = `<div class="row" data-key="${key}">`; //start row
 
 			row += `<label id="key-select" data-key="${key}"><input type="checkbox" ${(checked) ? "checked" : ""}>${key}</label>`;
+			row += `<div class="total-category">${this.#events.map(bin => bin.Info["event_type"]).filter(bin => bin.includes(key)).length}</div>`;
 
 			parent.innerHTML += row + "</div>"; //end row
 		}
