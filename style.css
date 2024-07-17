@@ -32,7 +32,7 @@ html, body {
 		& p#cost {
 			text-transform: capitalize;
 		}
-		& a.card-visit-btn {
+		& div.card-visit-btn {
 			white-space: nowrap;
 			cursor: pointer;
 			user-select: none;

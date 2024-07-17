@@ -134,6 +134,11 @@ export default class EventCardHandler {
 					e.target.style.display = (bool) ? "-webkit-box" : "flex";
 					e.target.dataset["hide"] = Number(bool);
 				});
+
+				element.querySelector("#web_link").addEventListener("click", () => {
+					const event = this.#events[Number(element.dataset["idx"])];
+					location.assign(`./../../dedicated/dedicated.html?idx=${element.dataset["idx"]}&hash=${event.Info["hash"]}`);
+				});
 			} catch (err) {
 				if (err instanceof GenerationException) {//skip if failed to generate event card
 					console.warn(`${err.name} ${err.message}`);

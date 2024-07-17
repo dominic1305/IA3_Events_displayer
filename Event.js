@@ -41,7 +41,7 @@ export default class Event {
 				}
 				case "web_link": {
 					obj[key] = value;
-					obj["hash"] = this.#hashGen(value); //creates hash for URL parsing when generating dedicated event page
+					obj["hash"] = this.HashGen(value); //creates hash for URL parsing when generating dedicated event page
 					break;
 				}
 				case "event_type": {
@@ -63,7 +63,7 @@ export default class Event {
 	}
 
 	/**@param {string} str*/
-	static #hashGen(str) {
+	static HashGen(str) {
 		let h1 = 0xdeadbeef;
 		let h2 = 0x41c6ce57;
 		for(let i = 0; i < str.length; i++) {
@@ -138,7 +138,7 @@ export default class Event {
 				case "age": continue; //is handled by "cost"
 				case "web_link": {
 					if (typeof value != "string") throw new GenerationException(`invalid type for ${key}`);
-					card.innerHTML += `<a class="card-visit-btn" href="${value}" draggable="false">Visit Page</a>`;
+					card.innerHTML += `<div id="${key}" class="card-visit-btn">Visit Page</div>`;
 					break;
 				}
 				case "hash": {
