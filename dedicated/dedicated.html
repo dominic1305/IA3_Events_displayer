@@ -7,15 +7,22 @@
 	<title>Event</title>
 </head>
 <body>
+	<template id="err-page">
+		<div class="event-err-page">
+			<img src="./img/error.svg" alt="error" draggable="false">
+			<p class="title">An Error Occurred</p>
+			<p class="msg"></p>
+			<div class="return-btn">Back Home</div>
+		</div>
+	</template>
 	<nav>
 		<div class="title">
 			<img class="logo" src="https://www.brisbane.qld.gov.au/themes/bcc_theme/src/components/logo/images/logo.png" alt="BCC logo" draggable="false">
 			<p id="title-txt">Brisbane City Events</p>
 		</div>
-		<div class="nav-btns">
-			<div class="create-account-btn">Sign Up for Notifications</div>
-		</div>
+		<div class="nav-btns"></div>
 	</nav>
+	<div class="wrapper"></div>
 	<script type="module" src="./main.js"></script>
 </body>
 </html>

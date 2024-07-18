@@ -5,7 +5,7 @@ export default class Event {
 		return Object.freeze(Object.assign({}, this.#info));
 	}
 
-	/**@private @param {Object<string, string | string[] | Date | HTMLImageElement>} info*/
+	/**@private @param {Object<string, string | string[] | Date>} info*/
 	constructor(info) {
 		this.#info = info;
 	}
@@ -75,7 +75,7 @@ export default class Event {
 		return (4294967296 * (2097151 & h2) + (h1 >> 0)).toString(32);
 	}
 
-	/**@returns {Generator<{key: string, value: string | Date | string[] | HTMLImageElement}>}*/
+	/**@returns {Generator<{key: string, value: string | Date | string[]}>}*/
 	*#GetData_Precedence() {
 		const arr = new Array(Object.keys(this.#info).length);
 

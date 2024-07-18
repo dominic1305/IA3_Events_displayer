@@ -8,19 +8,21 @@ window.onload = async () => {
 		const url = new URLSearchParams(new URL(location.href).search);
 		/**@type {Object<string, string?>[]}*/ let events = await fetch(`${eventsURL}?limit=${Number(url.get("idx"))+1}`).then(rsp => rsp.json()).then(bin => bin["results"]);
 
-		let idx = url.get("idx");
+		let idx = Number(url.get("idx"));
 		find: if (Event.HashGen(events[idx]["web_link"]) != url.get("hash")) {//didn't find the event in its cached position
 			const testHash = url.get("hash");
-			for (const event of events) {
-				if (Event.HashGen(event["web_link"]) == testHash) {//found the event but in a different place
-					idx = events.indexOf(event);
+			for (let i = 0; i < events.length; i++) {
+				if (Event.HashGen(events[i]["web_link"]) == testHash) {//found the event but in a different place
+					idx = i;
+					console.warn("found event in different position");
 					break find;
 				}
 			}
 			events = await fetch(`${eventsURL}?limit=100`).then(rsp => rsp.json()).then(bin => bin["results"]); //expand array
-			for (const event of events) {
-				if (Event.HashGen(event["web_link"]) == testHash) {//found the event but in a different place
-					idx = events.indexOf(event);
+			for (let i = 0; i < events.length; i++) {
+				if (Event.HashGen(events[i]["web_link"]) == testHash) {//found the event but in a different place
+					idx = i;
+					console.warn("found event in different position");
 					break find;
 				}
 			}
@@ -28,8 +30,22 @@ window.onload = async () => {
 		}
 
 		event = Event.GetEvent(events[idx]);
+
+		document.querySelector("title").innerHTML = event.Info["subject"];
 	} catch (error) {
-		throw error; //TODO: catch this properly
+		if (!(error instanceof Error)) return; //not an error, not an issue
+		if (!(error instanceof ParseException)) console.error(error);
+
+		document.querySelector(".wrapper").innerHTML = ""; //clear screen
+
+		document.querySelector(".wrapper").appendChild(document.querySelector("template#err-page").content.cloneNode(true));
+		const element = document.querySelector(".event-err-page");
+
+		element.querySelector(".msg").innerHTML = error.message;
+
+		element.querySelector(".return-btn").addEventListener("click", () => {
+			location.assign("./../../home/index.html");
+		});
 	}
 }
 
