@@ -15,6 +15,9 @@ window.onload = async () => {
 				if (Event.HashGen(events[i]["web_link"]) == testHash) {//found the event but in a different place
 					idx = i;
 					console.warn("found event in different position");
+					const newUrl = new URL(location.href);
+					newUrl.searchParams.set("idx", i);
+					window.history.pushState({}, "", newUrl); //update url with new idx position
 					break find;
 				}
 			}
@@ -23,6 +26,9 @@ window.onload = async () => {
 				if (Event.HashGen(events[i]["web_link"]) == testHash) {//found the event but in a different place
 					idx = i;
 					console.warn("found event in different position");
+					const newUrl = new URL(location.href);
+					newUrl.searchParams.set("idx", i);
+					window.history.pushState({}, "", newUrl); //update url with new idx position
 					break find;
 				}
 			}
@@ -31,6 +37,7 @@ window.onload = async () => {
 
 		event = Event.GetEvent(events[idx]);
 
+		DrawEvent(events[idx]);
 		document.querySelector("title").innerHTML = event.Info["subject"];
 	} catch (error) {
 		if (!(error instanceof Error)) return; //not an error, not an issue
@@ -52,3 +59,41 @@ window.onload = async () => {
 document.querySelector("nav > div.title").addEventListener("click", () => {
 	location.assign("./../../home/index.html");
 });
+
+/**@param {Object<string, string?>} rawInfo*/
+function DrawEvent(rawInfo) {
+	if (event == null) throw new Error("event cannot be null");
+
+	const FormatDate = () => `<p style="margin: 0;">Start:${Event.FormatDate(info["start_datetime"])}</p><p style="margin: 0;">End:${Event.FormatDate(info["end_datetime"])}</p></div>`;
+
+	document.querySelector(".wrapper").appendChild(document.querySelector("template#event-display").content.cloneNode(true));
+	const element = document.querySelector(".event-display-container");
+
+	const info = event.Info; //cache event data
+
+	element.querySelector(".event-img").src = info["eventimage"];
+	element.querySelector(".title").innerHTML = info["subject"];
+	element.querySelector(".cost").innerHTML = `Cost: ${info["cost"]}`;
+	element.querySelector(".formated-dates").innerHTML = rawInfo["formatteddatetime"] ?? FormatDate();
+	element.querySelector(".address").innerHTML = info["location"];
+	element.querySelector(".age").innerHTML = info["age"];
+	element.querySelector(".event-type").innerHTML = info["event_type"].join(', ');
+	element.querySelector(".description").innerHTML = info["description"].replaceAll('\n', "<br>");
+	element.querySelector(".bookings").innerHTML = rawInfo["bookings"] ?? "No bookings required.";
+	element.querySelector(".location").innerHTML = info["location"];
+	element.querySelector(".template").innerHTML = rawInfo["event_template"] ?? "";
+
+	element.querySelector(".visit-btn").dataset["link"] = info["web_link"];
+	element.querySelector(".visit-btn").addEventListener("click", (e) => location.assign(e.target.dataset["link"]));
+
+	element.querySelector(".map-container").innerHTML = `<iframe src="https://maps.google.com/maps?q=${info["venueaddress"]}&hl=en&z=14&amp;output=embed"></iframe>`;
+	element.querySelector(".map-container > iframe").onload = () => document.querySelector(".display-map-btn").classList.remove("inactive");
+	element.querySelector(".display-map-btn").addEventListener("click", (e) => {
+		if (e.target.classList.contains("inactive")) return; //map hasn't loaded yet
+
+		const state = Number(e.target.dataset["toggle"]); //0 -> -1 (false) = open, -1 -> 0 (true) = close
+
+		element.querySelector(".map-container").style.maxHeight = `${(state) ? 0 : element.querySelector(".map-container > iframe").clientHeight}px`;
+		e.target.dataset["toggle"] = ~state;
+	});
+}

@@ -75,6 +75,20 @@ export default class Event {
 		return (4294967296 * (2097151 & h2) + (h1 >> 0)).toString(32);
 	}
 
+	/**@param {Date} date @param {boolean?} _24H_time*/
+	static FormatDate(date, _24H_time = false) {
+		const _date = `${date.getDate()}/${date.getMonth()+1}/${String(date.getFullYear()).substring(2, 4)} `;
+
+		const hours = date.getHours();
+		const minutes = date.getMinutes();
+
+		if (_24H_time) return _date + String(hours).padStart(2, '0') + ':' + String(minutes).padEnd(2, '0');
+
+		if (hours > 12) return _date + String(hours - 12).padStart(2, '0') + ':' + String(minutes).padEnd(2, '0') + " PM";
+
+		return _date + String(hours).padStart(2, '0') + ':' + String(minutes).padEnd(2, '0') + " AM";
+	}
+
 	/**@returns {Generator<{key: string, value: string | Date | string[]}>}*/
 	*#GetData_Precedence() {
 		const arr = new Array(Object.keys(this.#info).length);
@@ -154,8 +168,8 @@ export default class Event {
 
 					let ss = "<p style=\"margin: 5px 0 0 0; text-decoration: underline;\">Event Progress</p><div class=\"card-dates\"><div class=\"formated-dates\">";
 
-					ss += `<p style="margin: 0;">Start: ${this.#FormatDate(start)}</p>`;
-					ss += `<p style="margin: 0;">End: ${this.#FormatDate(end)}</p></div>`;
+					ss += `<p style="margin: 0;">Start: ${Event.FormatDate(start)}</p>`;
+					ss += `<p style="margin: 0;">End: ${Event.FormatDate(end)}</p></div>`;
 
 					let progress = Math.floor(((new Date() - start) / (end - start)) * 100);
 					progress = (progress < 0) ? 0 : (progress > 100) ? 100 : progress;
@@ -191,20 +205,6 @@ export default class Event {
 		}
 
 		return card;
-	}
-
-	/**@param {Date} date @param {boolean?} _24H_time*/
-	#FormatDate(date, _24H_time = false) {
-		const _date = `${date.getDate()}/${date.getMonth()+1}/${String(date.getFullYear()).substring(2, 4)} `;
-
-		const hours = date.getHours();
-		const minutes = date.getMinutes();
-
-		if (_24H_time) return _date + String(hours).padStart(2, '0') + ':' + String(minutes).padEnd(2, '0');
-
-		if (hours > 12) return _date + String(hours - 12).padStart(2, '0') + ':' + String(minutes).padEnd(2, '0') + " PM";
-
-		return _date + String(hours).padStart(2, '0') + ':' + String(minutes).padEnd(2, '0') + " AM";
 	}
 }
 
