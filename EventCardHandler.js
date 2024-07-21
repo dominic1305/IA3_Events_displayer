@@ -14,9 +14,26 @@ export default class EventCardHandler {
 	get FilteredLength() {
 		let count = 0;
 		for (const event of this.#events) {
+			if ((!this.#filter["pending"] && event.IsPending) || (!this.#filter["finished"] && event.IsFinished) || (!this.#filter["active"] && event.IsActive)) continue;
 			if (event.Info["event_type"].some(bin => this.#filter[bin])) count++;
 		}
 		return count;
+	}
+
+	get #AreAllTypesFalse() {
+		for (const [ key, value ] of Object.entries(this.#filter)) {
+			if (["pending", "finished", "active"].includes(key)) continue;
+			if (value) return false;
+		}
+		return true;
+	}
+
+	get #AreAllTimesFalse() {
+		for (const [ key, value ] of Object.entries(this.#filter)) {
+			if (!["pending", "finished", "active"].includes(key)) continue;
+			if (value) return false;
+		}
+		return true;
 	}
 
 	/**@private @param {Event[]} events @param {HTMLDivElement} cardLocation @param {HTMLDivElement} filterBtn @param {Object<string, boolean>} filter */
@@ -43,7 +60,7 @@ export default class EventCardHandler {
 			}
 		}
 
-		const filter = {};
+		const filter = { pending: true, finished: true, active: true };
 		for (const event of buffer) {
 			for (const type of event.Info["event_type"]) {
 				if (Object.keys(filter).includes(type)) continue;
@@ -77,36 +94,44 @@ export default class EventCardHandler {
 				this.GenerateCards(10);
 			});
 
-			element.querySelectorAll(".row input").forEach((bin) => {
+			element.querySelectorAll(".row label[data-type=\"type\"] input").forEach((bin) => {
 				bin.addEventListener("click", () => {
-					const method = Number(element.querySelector("#toggle").dataset["method"]);
-					const inputs = Array.from(element.querySelectorAll(".row input"));
+					const method = Number(element.querySelector("#toggle-types").dataset["method"]);
+					const inputs = Array.from(element.querySelectorAll(".row label[data-type=\"type\"] input"));
 					if (inputs.every(bin => bin.checked) && method == -1 || inputs.every(bin => !bin.checked) && method == 0) {
-						element.querySelector("#toggle").dataset["method"] = ~method;
-						element.querySelector("#toggle").innerHTML = (~method) ? "Select All" : "Deselect All";
+						element.querySelector("#toggle-types").innerHTML = (method) ? "Deselect All" : "Select All";
+						element.querySelector("#toggle-types").dataset["method"] = ~method;
 					}
 				});
 			});
 
-			element.querySelector("#toggle").addEventListener("click", () => {
-				const method = Number(element.querySelector("#toggle").dataset["method"]);
-				switch (method) {
-					case 0: {//deselect all
-						for (const input of element.querySelectorAll(".row input")) {
-							input.checked = false;
-						}
-						break;
+			element.querySelectorAll(".row label[data-type=\"time\"] input").forEach((bin) => {
+				bin.addEventListener("click", () => {
+					const method = Number(element.querySelector("#toggle-times").dataset["method"]);
+					const inputs = Array.from(element.querySelectorAll(".row label[data-type=\"time\"] input"));
+					if (inputs.every(bin => bin.checked) && method == -1 || inputs.every(bin => !bin.checked) && method == 0) {
+						element.querySelector("#toggle-times").innerHTML = (method) ? "Deselect All" : "Select All";
+						element.querySelector("#toggle-times").dataset["method"] = ~method;
 					}
-					case -1: {//select all
-						for (const input of element.querySelectorAll(".row input")) {
-							input.checked = true;
-						}
-						break;
-					}
-					default: throw new Error(`invalid method: ${method}`);
+				});
+			});
+
+			element.querySelector("#toggle-types").addEventListener("click", () => {
+				const method = Number(element.querySelector("#toggle-types").dataset["method"]);
+				for (const input of element.querySelectorAll(".row label[data-type=\"type\"] input")) {
+					input.checked = Boolean(method);
 				}
-				element.querySelector("#toggle").dataset["method"] = ~method;
-				element.querySelector("#toggle").innerHTML = (~method) ? "Select All" : "Deselect All";
+				element.querySelector("#toggle-types").innerHTML = (method) ? "Deselect All" : "Select All";
+				element.querySelector("#toggle-types").dataset["method"] = ~method;
+			});
+
+			element.querySelector("#toggle-times").addEventListener("click", () => {
+				const method = Number(element.querySelector("#toggle-times").dataset["method"]);
+				for (const input of element.querySelectorAll(".row label[data-type=\"time\"] input")) {
+					input.checked = Boolean(method);
+				}
+				element.querySelector("#toggle-times").innerHTML = (method) ? "Deselect All" : "Select All";
+				element.querySelector("#toggle-times").dataset["method"] = ~method;
 			});
 		});
 	}
@@ -119,6 +144,7 @@ export default class EventCardHandler {
 			if (cardCount == targCount) break; //generated the required amount of cards
 			if (!this.#events[i].Info["event_type"].some(bin => this.#filter[bin])) continue; //this event is not compliant with the filter, skip
 			if (Array.from(document.querySelectorAll(".card-container > div.card")).some(bin => bin.dataset["idx"] == i)) continue; //card index already exists, skip
+			if ((!this.#filter["pending"] && this.#events[i].IsPending) || (!this.#filter["finished"] && this.#events[i].IsFinished) || (!this.#filter["active"] && this.#events[i].IsActive)) continue;
 
 			try {
 				const element = this.#cardLocation.appendChild(this.#events[i].GenerateCard());
@@ -168,18 +194,37 @@ export default class EventCardHandler {
 	}
 
 	#generateFilterModal() {
+		/**@returns {(event: Event) => boolean} @param {string} type*/
+		function GetTimeTypePredicate(type) {
+			switch (type) {
+				case "pending":		return (event) => event.IsPending;
+				case "finished":	return (event) => event.IsFinished;
+				case "active":		return (event) => event.IsActive;
+				default:			throw new Error(`invalid time type: ${type}`);
+			}
+		}
+
 		const parent = document.createElement("div");
 		parent.className = "filter-controller-container";
 
-		parent.innerHTML += "<div class=\"title\"><p class=\"title-txt\">Filter</p><div id=\"toggle\" data-method=\"0\">Deselect All</div><p class=\"exit\">&#10005;</p></div>"; //title
+		parent.innerHTML += "<div class=\"title\"><p class=\"title-txt\">Filter</p><p class=\"exit\">&#10005;</p></div>"; //title
+
+		parent.innerHTML += `<div class="toggle" id="toggle-times" data-method="${(this.#AreAllTimesFalse) ? -1 : 0}">${(this.#AreAllTimesFalse) ? "Select All" : "Deselect All"}</div>`;
 
 		for (const [ key, checked ] of Object.entries(this.#filter)) {
-			let row = `<div class="row" data-key="${key}">`; //start row
+			let row = "<div class=\"row\">"; //start row
 
-			row += `<label id="key-select" data-key="${key}"><input type="checkbox" ${(checked) ? "checked" : ""}>${key}</label>`;
-			row += `<div class="total-category">${this.#events.map(bin => bin.Info["event_type"]).filter(bin => bin.includes(key)).length}</div>`;
+			row += `<label id="key-select" data-type="${["pending", "finished", "active"].includes(key) ? "time" : "type"}" data-key="${key}"><input type="checkbox" ${(checked) ? "checked" : ""}>${key}</label>`;
+
+			if (["pending", "finished", "active"].includes(key)) {//handle time type functions
+				row += `<div class="total-category">${this.#events.filter(bin => GetTimeTypePredicate(key)(bin)).length}</div>`;
+			} else {
+				row += `<div class="total-category">${this.#events.map(bin => bin.Info["event_type"]).filter(bin => bin.includes(key)).length}</div>`;
+			}
 
 			parent.innerHTML += row + "</div>"; //end row
+
+			if (key == "active") parent.innerHTML += `<div class="toggle" id="toggle-types" data-method="${(this.#AreAllTypesFalse) ? -1 : 0}">${(this.#AreAllTypesFalse) ? "Select All" : "Deselect All"}</div>`;
 		}
 
 		parent.innerHTML += "<div class=\"submit\">Submit</div>";

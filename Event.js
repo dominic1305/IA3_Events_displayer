@@ -5,6 +5,23 @@ export default class Event {
 		return Object.freeze(Object.assign({}, this.#info));
 	}
 
+	get Progress() {//range from 0 - 100, showcasing the progress of the event as a percentage
+		let progress = Math.floor(((new Date() - this.#info["start_datetime"]) / (this.#info["end_datetime"] - this.#info["start_datetime"])) * 100);
+		return (progress < 0) ? 0 : (progress > 100) ? 100 : progress;
+	}
+
+	get IsFinished() {//event is over
+		return this.Progress >= 100;
+	}
+
+	get IsPending() {//event is yet to happen
+		return this.Progress <= 0;
+	}
+
+	get IsActive() {//event is activly operating
+		return !this.IsPending && !this.IsFinished;
+	}
+
 	/**@private @param {Object<string, string | string[] | Date>} info*/
 	constructor(info) {
 		this.#info = info;
@@ -161,26 +178,20 @@ export default class Event {
 					break;
 				}
 				case "start_datetime": {
-					const start = value;
-					const end = this.#info["end_datetime"];
+					if (!(value instanceof Date && this.#info["end_datetime"] instanceof Date)) throw new GenerationException("invalid date type");
 
-					if (!(end instanceof Date && start instanceof Date)) throw new GenerationException("invalid date type");
+					const titleMSG = (this.IsPending) ? "This event has not started yet" : (this.IsFinished) ? "This event is over" : `This event is ${this.Progress}% completed`;
+					const txt = (this.IsPending) ? "Pending" : (this.IsFinished) ? "Finished" : `${this.Progress}%`;
 
-					let ss = "<p style=\"margin: 5px 0 0 0; text-decoration: underline;\">Event Progress</p><div class=\"card-dates\"><div class=\"formated-dates\">";
+					let ss = `<p style="margin: 5px 0 0 0; text-decoration: underline;">Event Progress</p><div class="card-dates" data-state="${txt}"><div class="formated-dates">`;
 
-					ss += `<p style="margin: 0;">Start: ${Event.FormatDate(start)}</p>`;
-					ss += `<p style="margin: 0;">End: ${Event.FormatDate(end)}</p></div>`;
+					ss += `<p style="margin: 0;">Start: ${Event.FormatDate(value)}</p>`;
+					ss += `<p style="margin: 0;">End: ${Event.FormatDate(this.#info["end_datetime"])}</p></div>`;
 
-					let progress = Math.floor(((new Date() - start) / (end - start)) * 100);
-					progress = (progress < 0) ? 0 : (progress > 100) ? 100 : progress;
-
-					const titleMSG = (progress <= 0) ? "This event has not started yet" : (progress >= 100) ? "This event is over" : `This event is ${progress}% completed`;
-					const txt = (progress <= 0) ? "Pending" : (progress >= 100) ? "Finished" : `${progress}%`;
-
-					ss +=	`<svg viewBox="0 0 250 250" class="date-progress" style="--progress: ${progress}">
+					ss +=	`<svg viewBox="0 0 250 250" class="date-progress" style="--progress: ${this.Progress}">
 								<circle style="cx: var(--half-size); cy: var(--half-size); r: var(--radius);" class="bg"></circle>
 								<circle style="cx: var(--half-size); cy: var(--half-size); r: var(--radius);" class="fg"></circle>
-								<text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" style="font-size: ${(progress <= 0 || progress >= 100) ? "50" : "90"}px;">${txt}</text>
+								<text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" style="font-size: ${(this.IsPending || this.IsFinished) ? "50" : "90"}px;">${txt}</text>
 								<title>${titleMSG}</title>
 							</svg>`;
 

@@ -7,7 +7,7 @@ html, body {
 .wrapper {
 	height: max-content;
 	width: 90%;
-	margin: 100px 5vw 0px 5vw;
+	margin: 100px 5vw;
 }
 
 .card-container {
@@ -362,19 +362,23 @@ nav {
 			cursor: pointer;
 			transform: translateY(-20%);
 		}
-		& div#toggle {
-			padding: 3px 5px 0 5px;
-			background-color: #dddddd;
-			border-radius: 10px;
-			user-select: none;
-			cursor: pointer;
-			transition: 100ms;
-			&:hover {
-				transform: scale(1.05);
-			}
-			&:active {
-				transform: scale(0.9);
-			}
+	}
+	& div.toggle {
+		width: max-content;
+		padding: 3px 5px 0 5px;
+		background-color: #dddddd;
+		border-radius: 10px;
+		user-select: none;
+		cursor: pointer;
+		transition: 100ms;
+		transform: translateX(-50%);
+		position: relative;
+		left: 50%;
+		&:hover {
+			transform: translateX(-50%) scale(1.05);
+		}
+		&:active {
+			transform: translateX(-50%) scale(0.9);
 		}
 	}
 	& div.submit {
