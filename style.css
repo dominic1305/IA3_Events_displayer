@@ -67,6 +67,7 @@ html, body {
 			}
 		}
 		& p#subject {
+			font-weight: bold;
 			text-transform: capitalize;
 		}
 		& p#description {
@@ -363,7 +364,7 @@ nav {
 			transform: translateY(-20%);
 		}
 	}
-	& div.toggle {
+	& div.toggle, div.submit {
 		width: max-content;
 		padding: 3px 5px 0 5px;
 		background-color: #dddddd;
@@ -380,12 +381,6 @@ nav {
 		&:active {
 			transform: translateX(-50%) scale(0.9);
 		}
-	}
-	& div.submit {
-		user-select: none;
-		cursor: pointer;
-		margin-top: 10px;
-		text-align: center;
 	}
 	& div.row {
 		text-transform: capitalize;
