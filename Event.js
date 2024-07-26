@@ -1,3 +1,5 @@
+import LoremIpsum from "./LoremIpsum.js";
+
 export default class Event {
 	#info;
 
@@ -140,6 +142,8 @@ export default class Event {
 		let card = document.createElement("div");
 		card.className = "card";
 
+		const lorem = new LoremIpsum();
+
 		for (const { key, value } of this.#GetData_Precedence()) {
 			if (ignoreList != null && ignoreList.includes(key)) continue;
 
@@ -147,23 +151,23 @@ export default class Event {
 				case "requirements":
 				case "subject": {
 					if (typeof value != "string") throw new GenerationException(`invalid type for ${key}`);
-					card.innerHTML += `<p id="${key}">${value}</p>`;
+					card.innerHTML += `<p id="${key}">${lorem.Replace(value)}</p>`;
 					break;
 				}
 				case "description": {
 					if (typeof value != "string") throw new GenerationException(`invalid type for ${key}`);
-					card.innerHTML += `<p id="${key}" data-hide="1">${value}</p>`;
+					card.innerHTML += `<p id="${key}" data-hide="1">${lorem.Replace(value)}</p>`;
 					break;
 				}
 				case "location": {
 					if (typeof value != "string") throw new GenerationException(`invalid type for ${key}`);
-					card.innerHTML += `<div id="${key}" class="location-container"><div>${value}</div><div class="map-btn" data-address="${this.#info["venueaddress"]}">View on Map</div></div>`;
+					card.innerHTML += `<div id="${key}" class="location-container"><div>${lorem.Replace(value)}</div><div class="map-btn" data-address="${this.#info["venueaddress"]}">View on Map</div></div>`;
 					break;
 				}
 				case "venueaddress": continue; //is handled by "location"
 				case "cost": {
 					if (typeof value != "string") throw new GenerationException(`invalid type for ${key}`);
-					card.innerHTML += `<div class="costKey"><p id="${key}">${value}</p><p id="age">${this.#info["age"]}</p></div>`;
+					card.innerHTML += `<div class="costKey"><p id="${key}">${lorem.Replace(value)}</p><p id="age">${lorem.Replace(this.#info["age"])}</p></div>`;
 					break;
 				}
 				case "age": continue; //is handled by "cost"
@@ -180,18 +184,18 @@ export default class Event {
 				case "start_datetime": {
 					if (!(value instanceof Date && this.#info["end_datetime"] instanceof Date)) throw new GenerationException("invalid date type");
 
-					const titleMSG = (this.IsPending) ? "This event has not started yet" : (this.IsFinished) ? "This event is over" : `This event is ${this.Progress}% completed`;
-					const txt = (this.IsPending) ? "Pending" : (this.IsFinished) ? "Finished" : `${this.Progress}%`;
+					const titleMSG = lorem.Replace((this.IsPending) ? "This event has not started yet" : (this.IsFinished) ? "This event is over" : `This event is ${this.Progress}% completed`);
+					const txt = lorem.Replace((this.IsPending) ? "Pending" : (this.IsFinished) ? "Finished" : `${this.Progress}%`);
 
 					let ss = `<p style="margin: 5px 0 0 0; text-decoration: underline;">Event Progress</p><div class="card-dates" data-state="${txt}"><div class="formated-dates">`;
 
-					ss += `<p style="margin: 0;">Start: ${Event.FormatDate(value)}</p>`;
-					ss += `<p style="margin: 0;">End: ${Event.FormatDate(this.#info["end_datetime"])}</p></div>`;
+					ss += `<p style="margin: 0;">Start: ${lorem.Replace(Event.FormatDate(value))}</p>`;
+					ss += `<p style="margin: 0;">End: ${lorem.Replace(Event.FormatDate(this.#info["end_datetime"]))}</p></div>`;
 
 					ss +=	`<svg viewBox="0 0 250 250" class="date-progress" style="--progress: ${this.Progress}">
 								<circle style="cx: var(--half-size); cy: var(--half-size); r: var(--radius);" class="bg"></circle>
 								<circle style="cx: var(--half-size); cy: var(--half-size); r: var(--radius);" class="fg"></circle>
-								<text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" style="font-size: ${(this.IsPending || this.IsFinished) ? "50" : "90"}px;">${txt}</text>
+								<text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" style="font-size: ${(true) ? "50" : "90"}px;">${txt}</text>
 								<title>${titleMSG}</title>
 							</svg>`;
 
@@ -203,12 +207,12 @@ export default class Event {
 				case "event_type": continue; //not displayed to user, used for filtering
 				case "eventimage": {
 					if (typeof value != "string") throw new GenerationException(`invalid type for ${key}`);
-					card.innerHTML += `<img class="card-img" src="${value}" draggable="false">`;
+					card.innerHTML += `<img class="card-img" src="./img/placeholder.jpg" draggable="false">`;
 					break;
 				}
 				case "meetingpoint": {
 					if (typeof value != "string") throw new GenerationException(`invalid type for ${key}`);
-					if (value != "") card.innerHTML += `<p id="${key}">${value}</p>`;
+					if (value != "") card.innerHTML += `<p id="${key}">${lorem.Replace(value)}</p>`;
 					break;
 				}
 				default: throw new GenerationException(`${key} is not a valid Event element for generation`);

@@ -1,4 +1,5 @@
 import Event, { ParseException } from "./../Event.js";
+import LoremIpsum from "./../LoremIpsum.js";
 
 const eventsURL = "https://data.brisbane.qld.gov.au/api/explore/v2.1/catalog/datasets/brisbane-city-council-events/records";
 /**@type {Event?}*/ let event;
@@ -70,18 +71,19 @@ function DrawEvent(rawInfo) {
 	const element = document.querySelector(".event-display-container");
 
 	const info = event.Info; //cache event data
+	const lorem = new LoremIpsum();
 
-	element.querySelector(".event-img").src = info["eventimage"];
-	element.querySelector(".title").innerHTML = info["subject"];
-	element.querySelector(".cost").innerHTML = `Cost: ${info["cost"]}`;
-	element.querySelector(".formated-dates").innerHTML = rawInfo["formatteddatetime"] ?? FormatDate();
-	element.querySelector(".address").innerHTML = info["location"];
-	element.querySelector(".age").innerHTML = info["age"];
-	element.querySelector(".event-type").innerHTML = info["event_type"].join(', ');
-	element.querySelector(".description").innerHTML = info["description"].replaceAll('\n', "<br>");
-	element.querySelector(".bookings").innerHTML = rawInfo["bookings"] ?? "No bookings required.";
-	element.querySelector(".location").innerHTML = info["location"];
-	element.querySelector(".template").innerHTML = rawInfo["event_template"] ?? "";
+	element.querySelector(".event-img").src = "./img/placeholder.jpg";
+	element.querySelector(".title").innerHTML = lorem.Replace(info["subject"]);
+	element.querySelector(".cost").innerHTML = lorem.Replace(`Cost: ${info["cost"]}`);
+	element.querySelector(".formated-dates").innerHTML = lorem.Replace(rawInfo["formatteddatetime"] ?? FormatDate());
+	element.querySelector(".address").innerHTML = lorem.Replace(info["location"]);
+	element.querySelector(".age").innerHTML = lorem.Replace(info["age"]);
+	element.querySelector(".event-type").innerHTML = lorem.Replace(info["event_type"].join(', '));
+	element.querySelector(".description").innerHTML = lorem.Replace(info["description"].replaceAll('\n', "<br>"));
+	element.querySelector(".bookings").innerHTML = lorem.Replace(rawInfo["bookings"] ?? "No bookings required.");
+	element.querySelector(".location").innerHTML = lorem.Replace(info["location"]);
+	element.querySelector(".template").innerHTML = lorem.Replace(rawInfo["event_template"] ?? "");
 
 	element.querySelector(".visit-btn").dataset["link"] = info["web_link"];
 	element.querySelector(".visit-btn").addEventListener("click", (e) => location.assign(e.target.dataset["link"]));
